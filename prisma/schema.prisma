@@ -1,0 +1,81 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Family {
+  id            String         @id @default(cuid())
+  name          String
+  createdAt     DateTime       @default(now())
+  members       User[]
+  tasks         Task[]
+  events        Event[]
+  shoppingItems ShoppingItem[]
+}
+
+model User {
+  id            String         @id @default(cuid())
+  email         String         @unique
+  name          String
+  password      String
+  role          String         @default("MEMBER")
+  avatar        String         @default("👤")
+  points        Int            @default(0)
+  familyId      String?
+  family        Family?        @relation(fields: [familyId], references: [id])
+  assignedTasks Task[]         @relation("AssignedTo")
+  createdTasks  Task[]         @relation("CreatedBy")
+  createdEvents Event[]
+  shoppingItems ShoppingItem[]
+  createdAt     DateTime       @default(now())
+}
+
+model Task {
+  id           String    @id @default(cuid())
+  title        String
+  description  String    @default("")
+  points       Int       @default(1)
+  status       String    @default("TODO")
+  priority     String    @default("MEDIUM")
+  recurring    String?
+  dueDate      DateTime?
+  assignedToId String?
+  assignedTo   User?     @relation("AssignedTo", fields: [assignedToId], references: [id])
+  createdById  String
+  createdBy    User      @relation("CreatedBy", fields: [createdById], references: [id])
+  familyId     String
+  family       Family    @relation(fields: [familyId], references: [id])
+  createdAt    DateTime  @default(now())
+  completedAt  DateTime?
+}
+
+model Event {
+  id          String    @id @default(cuid())
+  title       String
+  description String    @default("")
+  date        DateTime
+  endDate     DateTime?
+  color       String    @default("#3B82F6")
+  createdById String
+  createdBy   User      @relation(fields: [createdById], references: [id])
+  familyId    String
+  family      Family    @relation(fields: [familyId], references: [id])
+  createdAt   DateTime  @default(now())
+}
+
+model ShoppingItem {
+  id        String   @id @default(cuid())
+  name      String
+  quantity  String   @default("1")
+  category  String   @default("Autre")
+  checked   Boolean  @default(false)
+  addedById String
+  addedBy   User     @relation(fields: [addedById], references: [id])
+  familyId  String
+  family    Family   @relation(fields: [familyId], references: [id])
+  createdAt DateTime @default(now())
+}
