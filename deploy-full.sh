@@ -32,7 +32,8 @@ log "Node.js $NODE_VERSION"
 # ── 2. PM2 ──────────────────────────────────────────
 info "Vérification de PM2..."
 if ! command -v pm2 &>/dev/null; then
-  sudo npm install -g pm2 2>/dev/null
+  npm install -g pm2
+  export PATH="$(npm config get prefix)/bin:$PATH"
 fi
 log "PM2 OK"
 
