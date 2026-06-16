@@ -15,35 +15,32 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.DEPLOY_SSH_KEY }}" | base64 -d > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          echo "Secret raw length: ${#DEPLOY_KEY_RAW}"
-          echo "Decoded key first line: $(head -1 ~/.ssh/deploy_key)"
-          echo "Decoded key last line: $(tail -1 ~/.ssh/deploy_key)"
-          echo "Decoded key line count: $(wc -l < ~/.ssh/deploy_key)"
-          ssh-keygen -y -f ~/.ssh/deploy_key
+          ssh-keygen -y -f ~/.ssh/deploy_key > /dev/null
           ssh-keyscan -H oltrelestelle.fr >> ~/.ssh/known_hosts 2>/dev/null
-        env:
-          DEPLOY_KEY_RAW: ${{ secrets.DEPLOY_SSH_KEY }}
 
       - name: Deploy on server
         run: |
-          ssh -i ~/.ssh/deploy_key theo@oltrelestelle.fr '
+          ssh -i ~/.ssh/deploy_key theo@oltrelestelle.fr "bash -lc '
             set -e
-            BRANCH="claude/great-hawking-ga5fhw"
-            APP_DIR="/opt/familleorga"
+            BRANCH=\"claude/great-hawking-ga5fhw\"
+            APP_DIR=\"/opt/familleorga\"
 
-            if [ ! -d "$APP_DIR/.git" ]; then
-              sudo mkdir -p "$APP_DIR"
-              sudo chown -R theo:theo "$APP_DIR"
-              git clone -b "$BRANCH" https://github.com/antitic/familleorga.git "$APP_DIR"
+            if [ ! -d \"\$APP_DIR/.git\" ]; then
+              sudo mkdir -p \"\$APP_DIR\"
+              sudo chown -R theo:theo \"\$APP_DIR\"
+              git clone -b \"\$BRANCH\" https://github.com/antitic/familleorga.git \"\$APP_DIR\"
             fi
 
-            cd "$APP_DIR"
+            cd \"\$APP_DIR\"
             git fetch origin
-            git checkout "$BRANCH"
-            git reset --hard "origin/$BRANCH"
+            git checkout \"\$BRANCH\"
+            git reset --hard \"origin/\$BRANCH\"
+
+            command -v node || echo NODE_NOT_FOUND
+            command -v pm2 || echo PM2_NOT_FOUND
 
             bash deploy-full.sh
-          '
+          '"
 
       - name: Verify deployment
         run: |
