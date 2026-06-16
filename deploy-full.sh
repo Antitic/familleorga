@@ -53,7 +53,9 @@ else
   cd "$APP_DIR"
   git checkout "$BRANCH" 2>/dev/null
 fi
-sudo chown -R "$USER":"$USER" "$APP_DIR"
+if [ "$(stat -c '%U' "$APP_DIR")" != "$USER" ]; then
+  sudo chown -R "$USER":"$USER" "$APP_DIR"
+fi
 log "Code à jour (branche $BRANCH)"
 
 # ── 4. Dépendances npm ──────────────────────────────
