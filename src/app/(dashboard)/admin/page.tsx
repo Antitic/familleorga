@@ -93,35 +93,37 @@ export default function AdminPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between animate-slide-up">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Administration</h1>
-          <p className="text-gray-500 mt-1">Gérer les membres de la famille</p>
+          <h1 className="page-title">Administration</h1>
+          <p className="page-subtitle">Gérer les membres de la famille</p>
         </div>
         <button
           onClick={() => { setShowForm(!showForm); setEditingId(null); setForm({ name: "", email: "", password: "", role: "MEMBER", avatar: "👤" }); }}
-          className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 transition"
+          className="btn-primary flex items-center gap-2"
         >
-          + Ajouter un membre
+          <span className="text-lg">👥</span> Ajouter un membre
         </button>
       </div>
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-4">
-          <h3 className="font-semibold text-gray-900">
-            {editingId ? "Modifier le membre" : "Nouveau membre"}
+        <form onSubmit={handleSubmit} className="card-static p-6 space-y-5 animate-bounce-soft">
+          <h3 className="font-bold text-lg" style={{ color: "var(--foreground)" }}>
+            {editingId ? "✏️ Modifier le membre" : "✨ Nouveau membre"}
           </h3>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Avatar</label>
+            <label className="label">Avatar</label>
             <div className="flex gap-2 flex-wrap">
               {avatars.map(a => (
                 <button
                   key={a}
                   type="button"
                   onClick={() => setForm({ ...form, avatar: a })}
-                  className={`text-2xl p-2 rounded-lg transition ${
-                    form.avatar === a ? "bg-indigo-100 ring-2 ring-indigo-500" : "hover:bg-gray-100"
+                  className={`text-2xl p-2.5 rounded-xl transition-all duration-300 ${
+                    form.avatar === a
+                      ? "bg-indigo-100 dark:bg-indigo-500/20 ring-2 ring-indigo-500 scale-110 shadow-lg"
+                      : "hover:bg-[var(--background)] hover:scale-105"
                   }`}
                 >
                   {a}
@@ -132,112 +134,84 @@ export default function AdminPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Nom *</label>
-              <input
-                type="text"
-                value={form.name}
-                onChange={e => setForm({ ...form, name: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
-                required
-              />
+              <label className="label">Nom *</label>
+              <input type="text" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className="input-field" required />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
-              <input
-                type="email"
-                value={form.email}
-                onChange={e => setForm({ ...form, email: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
-                required
-              />
+              <label className="label">Email *</label>
+              <input type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} className="input-field" required />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="label">
                 Mot de passe {editingId ? "(laisser vide pour ne pas changer)" : "*"}
               </label>
-              <input
-                type="password"
-                value={form.password}
-                onChange={e => setForm({ ...form, password: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
-                required={!editingId}
-              />
+              <input type="password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} className="input-field" required={!editingId} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Rôle</label>
-              <select
-                value={form.role}
-                onChange={e => setForm({ ...form, role: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
-              >
-                <option value="MEMBER">Membre</option>
-                <option value="ADMIN">Administrateur</option>
+              <label className="label">Rôle</label>
+              <select value={form.role} onChange={e => setForm({ ...form, role: e.target.value })} className="input-field">
+                <option value="MEMBER">👤 Membre</option>
+                <option value="ADMIN">👑 Administrateur</option>
               </select>
             </div>
           </div>
 
           <div className="flex gap-3">
-            <button type="submit" className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 transition">
+            <button type="submit" className="btn-primary">
               {editingId ? "Modifier" : "Créer"}
             </button>
-            <button type="button" onClick={resetForm} className="px-4 py-2 text-gray-600 hover:text-gray-900 transition">
-              Annuler
-            </button>
+            <button type="button" onClick={resetForm} className="btn-secondary">Annuler</button>
           </div>
         </form>
       )}
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <table className="w-full">
-          <thead>
-            <tr className="bg-gray-50 border-b border-gray-200">
-              <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Membre</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Email</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Rôle</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Points</th>
-              <th className="text-right px-6 py-3 text-xs font-medium text-gray-500 uppercase">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {members.map(member => (
-              <tr key={member.id} className="hover:bg-gray-50 transition">
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">{member.avatar}</span>
-                    <span className="text-sm font-medium text-gray-900">{member.name}</span>
-                  </div>
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-500">{member.email}</td>
-                <td className="px-6 py-4">
-                  <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-                    member.role === "ADMIN" ? "bg-purple-100 text-purple-700" : "bg-gray-100 text-gray-700"
-                  }`}>
-                    {member.role === "ADMIN" ? "Admin" : "Membre"}
-                  </span>
-                </td>
-                <td className="px-6 py-4 text-sm font-semibold text-indigo-600">{member.points}</td>
-                <td className="px-6 py-4 text-right">
-                  <div className="flex justify-end gap-2">
-                    <button
-                      onClick={() => startEdit(member)}
-                      className="text-sm px-3 py-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg transition"
-                    >
-                      Modifier
-                    </button>
-                    {member.id !== session?.user?.id && (
-                      <button
-                        onClick={() => deleteMember(member.id)}
-                        className="text-sm px-3 py-1.5 text-red-600 hover:bg-red-50 rounded-lg transition"
-                      >
-                        Supprimer
-                      </button>
-                    )}
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="space-y-3">
+        {members.map((member, i) => (
+          <div
+            key={member.id}
+            className="card-static p-4 flex items-center gap-4 animate-slide-up"
+            style={{ animationDelay: `${i * 60}ms` }}
+          >
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-500/20 dark:to-purple-500/20 flex items-center justify-center text-3xl shadow-inner">
+              {member.avatar}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <p className="font-bold" style={{ color: "var(--foreground)" }}>{member.name}</p>
+                <span className={`badge ${
+                  member.role === "ADMIN"
+                    ? "bg-gradient-to-r from-amber-400 to-orange-400 text-white shadow-sm"
+                    : "bg-slate-100 text-slate-600 dark:bg-slate-500/20 dark:text-slate-400"
+                }`}>
+                  {member.role === "ADMIN" ? "👑 Admin" : "👤 Membre"}
+                </span>
+              </div>
+              <p className="text-sm truncate" style={{ color: "var(--muted)" }}>{member.email}</p>
+            </div>
+            <div className="text-right shrink-0">
+              <p className="font-extrabold bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">
+                {member.points}
+              </p>
+              <p className="text-xs" style={{ color: "var(--muted)" }}>points</p>
+            </div>
+            <div className="flex gap-1.5 shrink-0">
+              <button
+                onClick={() => startEdit(member)}
+                className="p-2.5 rounded-xl transition-all duration-300 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 text-indigo-500 hover:scale-105"
+              >
+                ✏️
+              </button>
+              {member.id !== session?.user?.id && (
+                <button
+                  onClick={() => deleteMember(member.id)}
+                  className="p-2.5 rounded-xl transition-all duration-300 hover:bg-red-50 dark:hover:bg-red-500/10 text-red-500 hover:scale-105"
+                >
+                  🗑
+                </button>
+              )}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
