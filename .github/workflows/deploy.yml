@@ -1,0 +1,51 @@
+name: Deploy Familia to production
+
+on:
+  push:
+    branches:
+      - claude/great-hawking-ga5fhw
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H oltrelestelle.fr >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Deploy on server
+        run: |
+          ssh -i ~/.ssh/deploy_key theo@oltrelestelle.fr '
+            set -e
+            BRANCH="claude/great-hawking-ga5fhw"
+            APP_DIR="/opt/familleorga"
+
+            if [ ! -d "$APP_DIR/.git" ]; then
+              sudo mkdir -p "$APP_DIR"
+              sudo chown -R theo:theo "$APP_DIR"
+              git clone -b "$BRANCH" https://github.com/antitic/familleorga.git "$APP_DIR"
+            fi
+
+            cd "$APP_DIR"
+            git fetch origin
+            git checkout "$BRANCH"
+            git reset --hard "origin/$BRANCH"
+
+            bash deploy-full.sh
+          '
+
+      - name: Verify deployment
+        run: |
+          sleep 5
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://oltrelestelle.fr/familia)
+          echo "HTTP status: $STATUS"
+          if [ "$STATUS" -ge 200 ] && [ "$STATUS" -lt 400 ]; then
+            echo "Deployment verified successfully"
+          else
+            echo "Deployment verification failed with status $STATUS"
+            exit 1
+          fi
