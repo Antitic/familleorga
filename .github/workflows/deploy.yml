@@ -32,9 +32,8 @@ jobs:
             fi
 
             cd \"\$APP_DIR\"
-            git fetch origin
-            git checkout \"\$BRANCH\"
-            git reset --hard \"origin/\$BRANCH\"
+            git fetch https://github.com/antitic/familleorga.git \"\$BRANCH\"
+            git checkout -B \"\$BRANCH\" FETCH_HEAD
 
             command -v node || echo NODE_NOT_FOUND
             command -v pm2 || echo PM2_NOT_FOUND
